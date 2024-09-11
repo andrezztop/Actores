@@ -9,26 +9,28 @@
   </head>
   <body>
     <div class="tabla">
-        <table class="table table-hover">
+        <table class="table table-bordered">
             <thead>
                 <tr>
-                  <th scope="col">ID</th>
                   <th scope="col">Nombre</th>
                   <th scope="col">Conocido por</th>
+                  <th scope="col">Premios</th>
                   <th scope="col">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr id="actor-row">
-                    <th scope="row">1</th>
-                    <td id="actor-name">Mark</td>
-                    <td id="actor-known-for">Otto</td>
-                    <td>
-                        <button class="Ver">Ver</button>
-                        <button class="Eliminar">Eliminar</button>
-                    </td>
-                </tr>
-            </tbody>
+              <tr id="actor-row">
+                <td id="actor-info">
+                    <img alt="Image description" id="actor-foto">
+                    <span id="actor-name"></span>
+                </td>
+                <td id="actor-known-for"></td>
+                <td id="actor-awards"></td>
+                <td>
+                    <button class="Ver">Ver</button>
+                    <button class="Eliminar">Eliminar</button>
+                </td>
+            </tr>
         </table>
     </div>
     <footer>

@@ -1,0 +1,12 @@
+#actor-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#actor-foto {
+    margin-bottom: 10px;
+    max-width: 100px;
+    max-height: 150px;
+    border-radius: 25%;
+}

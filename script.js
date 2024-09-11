@@ -1,4 +1,4 @@
-class Actor {
+class ActorTabla {
     constructor(id) {
         this.id = id;
         this.apiUrl = `https://freetestapi.com/api/v1/actors/${this.id}`;
@@ -21,12 +21,19 @@ class Actor {
     async updateTable() {
         const data = await this.fetchActorData();
         if (data) {
-            document.getElementById('actor-name').textContent = data.name || 'N/A';
+            const actorInfo = document.getElementById('actor-info');
+            const actorFoto = actorInfo.getElementsByTagName('img')[0];
+            actorFoto.src = data.image || 'no-image.png';
+            
+            const actorName = actorInfo.getElementsByTagName('span')[0];
+            actorName.textContent = data.name || 'N/A';
+            
             document.getElementById('actor-known-for').textContent = data.known_for || 'N/A';
+            document.getElementById('actor-awards').textContent = data.awards || 'N/A';
         }
     }
 }
 
 // Instancia la clase Actor y actualiza la tabla
-const actor = new Actor(1);
+const actor = new ActorTabla(1);
 actor.updateTable();
