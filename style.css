@@ -33,9 +33,12 @@
 /* Estilo para el pie de página */
 footer {
     text-align: center;
-    padding: 20px;
+    padding: 5%;
     background-color: #007bff;
     color: white;
     width: 100%;
     font-size: 14px;
+    position:static; /* Fija el pie de página en la parte inferior */
+    bottom: 0; /* Colócalo en la parte inferior de la ventana */
+    z-index: 1000; /* Asegúrate de que esté por encima de otros contenidos */
 }
