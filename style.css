@@ -8,6 +8,7 @@
     width: 100%; /* Ajusta el ancho de la tabla */
     border-collapse: collapse;
     background-color: #fff;
+    text-align: center;
 }
 
 /* Estilo para el encabezado */
@@ -20,17 +21,17 @@
 
 .table td img {
     border-radius: 15px;
-    height: auto;
-    width: auto;
+    min-height: 100px;
+    min-width: 150px;
+    width: 200px;
+    height: 200px;
     display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: groove;
+    border-color: #007bff;
 }
 
-.table td .actor-name {
-    font-weight: bold;
-    margin-left: 50%;
-}
-
-/* Estilo para el pie de página */
 footer {
     text-align: center;
     padding: 5%;
@@ -40,5 +41,50 @@ footer {
     font-size: 14px;
     position:static; /* Fija el pie de página en la parte inferior */
     bottom: 0; /* Colócalo en la parte inferior de la ventana */
-    z-index: 1000; /* Asegúrate de que esté por encima de otros contenidos */
+}
+
+.grafica {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-style: groove;
+    border-color: #007bff;
+    margin: 20px
+}
+
+#myChart {
+    max-width: 100%; /* Asegura que el canvas no se desborde del contenedor */
+    max-height: 100%; /* Asegura que el canvas no se desborde del contenedor */
+}
+button{
+    border: #007bff;
+    border-style: groove; 
+    color: rgb(0, 0, 0); 
+    padding: 10px 20px; 
+    cursor: pointer; 
+    border-radius: 5px; 
+      
+}
+.Ver{
+    display: block;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.Ver:hover{
+    color: #000000;
+    background-color: gray;
+}
+
+.Eliminar{
+    display: block;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.Eliminar:hover{
+    color: #ff0000;
+    background-color: gray;
 }
