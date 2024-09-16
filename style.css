@@ -70,8 +70,8 @@ button{
 }
 .Ver{
     -webkit-box-shadow: 5px 8px 30px 1px rgba(24, 35, 182, 1);
--moz-box-shadow: 5px 8px 30px 1px rgba(24, 35, 182, 1);
-box-shadow: 5px 8px 30px 1px rgba(24, 35, 182, 1);
+    -moz-box-shadow: 5px 8px 30px 1px rgba(24, 35, 182, 1);
+    box-shadow: 5px 8px 30px 1px rgba(24, 35, 182, 1);
     display: block;
     margin-bottom: 50px;
     margin-left: auto;
@@ -173,16 +173,18 @@ box-shadow: 5px 8px 30px 1px rgba(24, 35, 182, 1);
     }
 
     .modal-content {
-        background-color: #fefefe;
         padding: 10px 20px 50px;
         border: 5px solid #0d6efd;
         border-radius: 7px;
         width: 80%;
-        max-width: 600px;
+        max-width: fit-content;
         max-height: 80vh;
         overflow-y: auto;
         position: relative;
+        background-image: url("invitacion-boda-fondo-acuarela-abstracta-pintada-mano-minimalista-creativa_297030-2355.png");
+        background-size: cover;
     }
+    
     .close {
         color: #aaa;
         position: absolute;
@@ -195,20 +197,26 @@ box-shadow: 5px 8px 30px 1px rgba(24, 35, 182, 1);
         cursor: pointer;
         
     }
+
     .close:hover,
     .close:focus {
         color: rgb(255, 0, 0);
         text-decoration: none;
     }
-    .actor-details {
+    #modalTitle{
         text-align: center;
     }
+
     .actor-details ul {
         list-style-type: none;
-        padding: 0;
     }
+    
+    .actor-details h2{
+        text-align: center;
+    }
+    
     .actor-details .actor-details-img {
-        margin-top: 20px;
+        margin-top: 30px;
         padding: 15px;
         border-radius: 15px;
     }
@@ -216,5 +224,18 @@ box-shadow: 5px 8px 30px 1px rgba(24, 35, 182, 1);
         max-width: 200px;
         border-radius: 5px 50px 5px 50px / 50px 15px 50px 15px; 
         border: 5px double #c21a1a;
-        border-width: 10px 7px 10px;
+        border-width: 10px 7px 10px;;
+    }
+    .texto{
+        text-align: center;
+        width: 280px;
+        height: auto;
+        align-items: right;
+        margin-left: 300px;
+        margin-top: -300px;
+        border-style: double;
+        border-color: #007bff;
+        border-radius: 5px 50px 5px 50px / 50px 15px 50px 15px; 
+        padding: 20px;
+        background-color: #ffffff;
     }

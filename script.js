@@ -84,23 +84,60 @@ class RandomActor {
         this.actorManager.addUsedId(randomId);
         this.grafica.updateChart(awardCounts);
     }
+
+    async translateTextLibre(text, targetLanguage) {
+        const apiUrl = 'https://libretranslate.com/translate';
+    
+        const requestBody = {
+            q: text,             // El texto que quieres traducir
+            source: 'en',        // Idioma de origen (en este caso, inglés)
+            target: targetLanguage,  // Idioma de destino (por ejemplo, 'es' para español)
+            format: 'text'
+        };
+    
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+    
+            const data = await response.json();
+            return data.translatedText;  // Devuelve el texto traducido
+        } catch (error) {
+            console.error('Error al traducir el texto:', error);
+            return null;
+        }
+    }
     
     showActorDetails(data, awardCounts) {
         const modalContent = `
             <div class="actor-details"> 
-             <div class="actor-details-img">
+                <h2>${data.name || 'Nombre desconocido'}</h2>
+                <div class="actor-details-img">
                     <img src="${data.image || 'no-image.png'}" alt="${data.name}" class= "actor-details-img-img">
                 </div>
-                <h2>${data.name || 'Nombre desconocido'}</h2>
-                <p><strong>Conocido por:</strong> ${data.known_for.join(', ') || 'N/A'}</p>
-                <p><strong>Premios:</strong></p>
-                <ul>
-                    ${Object.entries(awardCounts).map(([award, count]) => `<li>${award}: ${count}</li>`).join('')}
-                </ul>
+                <div class = "texto">
+                    <p><strong>ID:</strong> ${data.id || 'Nombre desconocido'}</p>
+                    <p><strong>Fecha de Nacimiento:</strong> ${data.birth_year || 'Biografía no disponible.'}</p>
+                    <p><strong>Conocido por:</strong> ${data.known_for.join(', ') || 'N/A'}</p>
+                    <p><strong>Premios: </strong>
+                    <ul>
+                        ${Object.entries(awardCounts).map(([award, count]) => `<li>${award}: ${count}</li>`).join('')}
+                    </ul>
+                    </p>
+                    <p><strong>Nacionalidad: </strong>
+                    ${data.nationality || 'Biografía no disponible.'}</p>
+                    </p>
+                    <p><strong>Biografía: </strong>
+                    ${data.biography || 'Biografía no disponible.'}</p>
+                </div>
             </div>
         `;
         this.modal.show('Detalles del Actor', modalContent);
-    }   
+    }
     
     removeActorRow(row, id, awardCounts) {
         this.tableBody.removeChild(row);
