@@ -89,6 +89,7 @@ class RandomActor {
     }
 
     startUpdatingTable() {
+<<<<<<< Updated upstream
         this.addActorRow();
         setInterval(() => this.addActorRow(), 5000);//Modifica el tiempo de agregar actor
     }
@@ -210,4 +211,90 @@ class Grafica {
 const actorManager = new ActorManager();
 const grafica = new Grafica(); // Instancia de la gráfica
 const randomActor = new RandomActor(actorManager, grafica); // Pasar grafica como argumento
+=======
+        this.addActorRow(); // Agrega un actor inicialmente
+        setInterval(() => {
+            this.addActorRow(); // Agrega un nuevo actor cada 5 segundos
+        }, 1000);
+    }
+}
+
+
+class ActorSearcher {
+    constructor(actorManager, randomActor) {
+        this.actorManager = actorManager;
+        this.randomActor = randomActor;
+        this.searchInput = null;
+        this.searchResults = null;
+        this.actorDetails = null;
+        this.setupSearchUI();
+    }
+
+    setupSearchUI() {
+        // Crear elementos del DOM para la búsqueda y detalles del actor
+        const searchContainer = document.createElement('div');
+        searchContainer.id = 'search-container';
+        searchContainer.innerHTML = `
+            <input type="text" id="actor-search" placeholder="Buscar por ID o nombre...">
+            <div id="search-results"></div>
+            <div id="actor-details"></div>
+        `;
+        document.body.insertBefore(searchContainer, document.body.firstChild);
+
+        this.searchInput = document.getElementById('actor-search');
+        this.searchResults = document.getElementById('search-results');
+        this.actorDetails = document.getElementById('actor-details');
+
+        // Agregar evento de búsqueda
+        this.searchInput.addEventListener('input', () => this.performSearch());
+    }
+
+    performSearch() {
+        const searchTerm = this.searchInput.value.toLowerCase();
+        this.searchResults.innerHTML = '';
+        this.actorDetails.innerHTML = '';
+
+        if (searchTerm.length === 0) return;
+
+        const matchingRows = Array.from(this.randomActor.tableBody.rows).filter(row => {
+            const id = row.dataset.id;
+            const name = row.cells[0].textContent.toLowerCase();
+            return id.includes(searchTerm) || name.includes(searchTerm);
+        });
+
+        matchingRows.forEach(row => {
+            const resultItem = document.createElement('div');
+            resultItem.textContent = `ID: ${row.dataset.id} - Nombre: ${row.cells[0].textContent.trim()}`;
+            resultItem.addEventListener('click', () => this.showActorDetails(row));
+            this.searchResults.appendChild(resultItem);
+        });
+    }
+
+    showActorDetails(row) {
+        const id = row.dataset.id;
+        const name = row.cells[0].textContent.trim();
+        const image = row.cells[0].querySelector('img').src;
+        const knownFor = row.cells[1].textContent;
+        const awards = row.cells[2].textContent;
+
+        this.actorDetails.innerHTML = `
+            <img src="${image}" alt="${name}">
+            <h2>${name}</h2>
+            <p><strong>ID:</strong> ${id}</p>
+            <p><strong>Conocido por:</strong> ${knownFor}</p>
+            <p><strong>Premios:</strong> ${awards}</p>
+        `;
+
+        // Limpiar los resultados de búsqueda y el campo de entrada
+        this.searchResults.innerHTML = '';
+        this.searchInput.value = '';
+    }
+}
+
+// Uso
+const actorManager = new ActorManager();
+const randomActor = new RandomActor(actorManager);
+const actorSearcher = new ActorSearcher(actorManager, randomActor);
+
+>>>>>>> Stashed changes
 randomActor.startUpdatingTable();

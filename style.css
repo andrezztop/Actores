@@ -13,7 +13,7 @@
 
 /* Estilo para el encabezado */
 .table thead th {
-    background-color: #007bff; /* Color de fondo azul */
+    background: linear-gradient(blue, rgb(122, 179, 209)); /* Color de fondo azul */
     color: white; /* Color de texto blanco */
     font-weight: bold;
     text-align: center;
@@ -41,6 +41,7 @@ footer {
     font-size: 14px;
     position:static; /* Fija el pie de página en la parte inferior */
     bottom: 0; /* Colócalo en la parte inferior de la ventana */
+<<<<<<< Updated upstream
 }
 
 .grafica {
@@ -87,4 +88,54 @@ button{
 .Eliminar:hover{
     color: #ff0000;
     background-color: gray;
+=======
+    z-index: 1000; /* Asegúrate de que esté por encima de otros contenidos */
+}
+
+#sugerencias {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+}
+#sugerencias li {
+    padding: 10px;
+    cursor: pointer;
+}
+#sugerencias li:hover {
+    background-color: #f0f0f0;
+}
+
+#search-container {
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+}
+#actor-search {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border-color: #000;
+}
+#search-results {
+    cursor: pointer;
+}
+#search-results div {
+    padding: 5px;
+    border-bottom: 1px solid #eee;
+}
+#search-results div:hover {
+    background-color: #f0f0f0;
+}
+#actor-details {
+    margin-top: 20px;
+    padding: 15px;
+    border: 3px solid #007bff;
+    border-radius: 15px;
+}
+#actor-details img {
+    max-width: 200px;
+    border-radius: 5px 50px 5px 50px / 50px 15px 50px 15px; 
+    
+>>>>>>> Stashed changes
 }
