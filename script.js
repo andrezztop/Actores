@@ -29,6 +29,7 @@ class RandomActor {
         this.tableBody = document.getElementById('actor-table-body');
         this.actorManager = actorManager;
         this.grafica = grafica; // Añadimos la gráfica como propiedad
+        this.modal = new Modal();
     }
 
     async fetchActorData(id) {
@@ -56,7 +57,6 @@ class RandomActor {
         const actorName = data.name || 'N/A';
         const awardsArray = data.awards || [];
         const awardCounts = this.countAwards(awardsArray);
-
         const row = document.createElement('tr');
         row.dataset.id = randomId;
         
@@ -76,12 +76,32 @@ class RandomActor {
         row.querySelector('.Eliminar').addEventListener('click', () => {
             this.removeActorRow(row, randomId, awardCounts);
         });
+        row.querySelector('.Ver').addEventListener('click', () => {
+            this.showActorDetails(data, awardCounts);
+        });
 
         this.tableBody.appendChild(row);
         this.actorManager.addUsedId(randomId);
         this.grafica.updateChart(awardCounts);
     }
-
+    
+    showActorDetails(data, awardCounts) {
+        const modalContent = `
+            <div class="actor-details"> 
+             <div class="actor-details-img">
+                    <img src="${data.image || 'no-image.png'}" alt="${data.name}" class= "actor-details-img-img">
+                </div>
+                <h2>${data.name || 'Nombre desconocido'}</h2>
+                <p><strong>Conocido por:</strong> ${data.known_for.join(', ') || 'N/A'}</p>
+                <p><strong>Premios:</strong></p>
+                <ul>
+                    ${Object.entries(awardCounts).map(([award, count]) => `<li>${award}: ${count}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+        this.modal.show('Detalles del Actor', modalContent);
+    }   
+    
     removeActorRow(row, id, awardCounts) {
         this.tableBody.removeChild(row);
         this.actorManager.removeUsedId(id);
@@ -89,9 +109,46 @@ class RandomActor {
     }
 
     startUpdatingTable() {
-<<<<<<< Updated upstream
         this.addActorRow();
         setInterval(() => this.addActorRow(), 5000);//Modifica el tiempo de agregar actor
+    }
+}
+class Modal {
+    constructor() {
+        this.modal = this.createModal();
+        document.body.appendChild(this.modal);
+    }
+
+    createModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close"> 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16">
+                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                </svg></span>
+                <h2 id="modalTitle"></h2>
+                <div id="modalContent"></div>
+            </div>
+        `;
+        modal.style.display = 'none';
+        modal.querySelector('.close').onclick = () => this.hide();
+        window.onclick = (event) => {
+            if (event.target == modal) this.hide();
+        };
+        return modal;
+    }
+
+    show(title, content) {
+        this.modal.querySelector('#modalTitle').textContent = title;
+        this.modal.querySelector('#modalContent').innerHTML = content;
+        this.modal.style.display = 'flex';
+    }
+
+    hide() {
+        this.modal.style.display = 'none';
     }
 }
 
@@ -208,18 +265,6 @@ class Grafica {
     }
 }
 
-const actorManager = new ActorManager();
-const grafica = new Grafica(); // Instancia de la gráfica
-const randomActor = new RandomActor(actorManager, grafica); // Pasar grafica como argumento
-=======
-        this.addActorRow(); // Agrega un actor inicialmente
-        setInterval(() => {
-            this.addActorRow(); // Agrega un nuevo actor cada 5 segundos
-        }, 1000);
-    }
-}
-
-
 class ActorSearcher {
     constructor(actorManager, randomActor) {
         this.actorManager = actorManager;
@@ -236,6 +281,7 @@ class ActorSearcher {
         searchContainer.id = 'search-container';
         searchContainer.innerHTML = `
             <input type="text" id="actor-search" placeholder="Buscar por ID o nombre...">
+            <p id= "parrafo-busqueda"> <strong> Aqui la busqueda por ID o nombre <strong> </p>
             <div id="search-results"></div>
             <div id="actor-details"></div>
         `;
@@ -291,10 +337,9 @@ class ActorSearcher {
     }
 }
 
-// Uso
 const actorManager = new ActorManager();
-const randomActor = new RandomActor(actorManager);
+const grafica = new Grafica(); // Instancia de la gráfica
+const randomActor = new RandomActor(actorManager, grafica); // Pasar grafica como argumento
+randomActor.startUpdatingTable();
 const actorSearcher = new ActorSearcher(actorManager, randomActor);
 
->>>>>>> Stashed changes
-randomActor.startUpdatingTable();
