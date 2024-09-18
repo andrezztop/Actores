@@ -1,34 +1,47 @@
 class ActorManager {
     constructor() {
-        this.usedIds = new Set(); // Para almacenar IDs ya utilizados
-        this.maxId = 40; // El número máximo de IDs disponibles
+        this.usedIds = new Set();   // IDs ya usados
+        this.deletedIds = [];       // IDs eliminados para reutilización
+        this.maxIds = 40;           // Límite máximo de IDs
     }
 
     generateUniqueId() {
-        let randomId;
-        const availableIds = Array.from({ length: this.maxId }, (_, i) => i + 1)
-            .filter(id => !this.usedIds.has(id));
+        // Reutiliza un ID eliminado si existe, o genera uno nuevo si no se ha alcanzado el límite
+        return this.deletedIds.pop() || (this.usedIds.size < this.maxIds && this.createNewId());
+    }
 
-        return availableIds.length > 0
-            ? availableIds[Math.floor(Math.random() * availableIds.length)] // Genera un ID aleatorio entre los disponibles
-            : null; // No hay más IDs disponibles
+    createNewId() {
+        // Crea un array con los IDs que aún no han sido usados
+        const availableIds = Array.from({ length: this.maxIds }, (_, index) => index + 1)
+            .filter(id => !this.usedIds.has(id));
+        
+        // Selecciona un ID aleatorio de los disponibles
+        const randomIndex = Math.floor(Math.random() * availableIds.length);
+
+        // Retorna el ID seleccionado y lo agrega a los usados
+        const newId = availableIds[randomIndex];
+
+        // Añadir el nuevo ID a los usados
+        this.usedIds.add(newId);
+        
+        return newId;
     }
 
     addUsedId(id) {
-        this.usedIds.add(id);
+        this.usedIds.add(id);  // Marca el ID como usado
     }
 
     removeUsedId(id) {
-        this.usedIds.delete(id);
+        this.usedIds.delete(id);    // Elimina el ID de los usados
+        this.deletedIds.push(id);   // Agrega el ID a los eliminados para reutilización
     }
 }
-
 
 class RandomActor {
     constructor(actorManager, grafica) {
         this.tableBody = document.getElementById('actor-table-body');
         this.actorManager = actorManager;
-        this.grafica = grafica; // Añadimos la gráfica como propiedad
+        this.grafica = grafica;
         this.modal = new Modal();
     }
 
@@ -43,7 +56,6 @@ class RandomActor {
         }
     }
 
-    // Cuenta las ocurrencias de cada tipo de premio usando reduce
     countAwards(awardsArray = []) {
         return awardsArray.reduce((counts, award) => ({
             ...counts,
@@ -52,74 +64,54 @@ class RandomActor {
     }
 
     async addActorRow() {
+        // Genera un ID único aleatorio, se detiene si no quedan disponibles
         const randomId = this.actorManager.generateUniqueId();
-        const data = await this.fetchActorData(randomId);
-        const actorName = data.name || 'N/A';
-        const awardsArray = data.awards || [];
-        const awardCounts = this.countAwards(awardsArray);
-        const row = document.createElement('tr');
-        row.dataset.id = randomId;
         
-        row.innerHTML = `
-            <td>
-                <img src="${data.image || 'no-image.png'}" alt="${actorName}">
-                <span">${actorName}</span>
-            </td>
-            <td>${data.known_for.join(', ') || 'N/A'}</td>
-            <td>${awardsArray.join(', ') || 'N/A'}</td>
-            <td>
-                <button class="Ver">Ver</button>
-                <button class="Eliminar">Eliminar</button>
-            </td>
-        `;
-        
-        row.querySelector('.Eliminar').addEventListener('click', () => {
-            this.removeActorRow(row, randomId, awardCounts);
-        });
-        row.querySelector('.Ver').addEventListener('click', () => {
-            this.showActorDetails(data, awardCounts);
-        });
-
-        this.tableBody.appendChild(row);
-        this.actorManager.addUsedId(randomId);
-        this.grafica.updateChart(awardCounts);
-    }
-
-    async translateTextLibre(text, targetLanguage) {
-        const apiUrl = 'https://libretranslate.com/translate';
+        // Si `randomId` es válido, ejecuta el resto del código
+        randomId && await this.fetchActorData(randomId).then(data => {
+            const actorName = data.name || 'N/A';
+            const awardsArray = data.awards || [];
+            const awardCounts = this.countAwards(awardsArray);
     
-        const requestBody = {
-            q: text,             // El texto que quieres traducir
-            source: 'en',        // Idioma de origen (en este caso, inglés)
-            target: targetLanguage,  // Idioma de destino (por ejemplo, 'es' para español)
-            format: 'text'
-        };
+            const row = document.createElement('tr');
+            row.dataset.id = randomId;
     
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
+            // Crear el contenido de la fila
+            row.innerHTML = `
+                <td>
+                    <img src="${data.image || 'no-image.png'}" alt="${actorName}">
+                    <span>${actorName}</span>
+                </td>
+                <td>${data.known_for?.join(', ') || 'N/A'}</td>
+                <td>${awardsArray.join(', ') || 'N/A'}</td>
+                <td>
+                    <button class="Ver">Ver</button>
+                    <button class="Eliminar">Eliminar</button>
+                </td>
+            `;
+    
+            // Agregar eventos a los botones
+            row.querySelector('.Eliminar').addEventListener('click', () => {
+                this.confirmation(row, randomId, awardCounts);
+            });
+            row.querySelector('.Ver').addEventListener('click', () => {
+                this.showActorDetails(data, awardCounts);
             });
     
-            const data = await response.json();
-            return data.translatedText;  // Devuelve el texto traducido
-        } catch (error) {
-            console.error('Error al traducir el texto:', error);
-            return null;
-        }
+            // Agregar la fila a la tabla y actualizar la gráfica
+            this.tableBody.appendChild(row);
+            this.actorManager.addUsedId(randomId);
+            this.grafica.updateChart(awardCounts);
+        });
     }
-    
     showActorDetails(data, awardCounts) {
         const modalContent = `
             <div class="actor-details"> 
                 <h2>${data.name || 'Nombre desconocido'}</h2>
                 <div class="actor-details-img">
-                    <img src="${data.image || 'no-image.png'}" alt="${data.name}" class= "actor-details-img-img">
+                    <img src="${data.image || 'no-image.png'}" alt="${data.name}" class="actor-details-img-img">
                 </div>
-                <div class = "texto">
+                <div class="texto">
                     <p><strong>ID:</strong> ${data.id || 'Nombre desconocido'}</p>
                     <p><strong>Fecha de Nacimiento:</strong> ${data.birth_year || 'Biografía no disponible.'}</p>
                     <p><strong>Conocido por:</strong> ${data.known_for.join(', ') || 'N/A'}</p>
@@ -130,7 +122,6 @@ class RandomActor {
                     </p>
                     <p><strong>Nacionalidad: </strong>
                     ${data.nationality || 'Biografía no disponible.'}</p>
-                    </p>
                     <p><strong>Biografía: </strong>
                     ${data.biography || 'Biografía no disponible.'}</p>
                 </div>
@@ -138,18 +129,49 @@ class RandomActor {
         `;
         this.modal.show('Detalles del Actor', modalContent);
     }
+
+    confirmation(row, id, awardCounts) {
+        // Contenido del modal de confirmación
+        const content = `
+            <div class="confirmation-modal">  
+                <p>¿Desea eliminar a este Actor?</p>
+                <button class="cancelar">NO</button>
+                <button class="confirmar">SI</button>
+            </div>
+        `;
     
+        // Mostrar el modal con el contenido especificado
+        this.modal.show('Confirmación de Eliminación', content);
+    
+        // Asegúrate de que el contenido del modal esté presente en el DOM antes de agregar eventos
+        const modalContent = this.modal.modal.querySelector('.confirmation-modal');
+    
+        if (modalContent) {
+            // Agregar evento para el botón de confirmación (SI)
+            modalContent.querySelector('.confirmar').addEventListener('click', () => {
+                this.removeActorRow(row, id, awardCounts);
+                this.modal.hide();
+            });
+    
+            // Agregar evento para el botón de cancelación (NO)
+            modalContent.querySelector('.cancelar').addEventListener('click', () => {
+                this.modal.hide();
+            });
+        }
+    }
+
     removeActorRow(row, id, awardCounts) {
         this.tableBody.removeChild(row);
         this.actorManager.removeUsedId(id);
-        this.grafica.removeAwards(awardCounts);//Quita actor
+        this.grafica.removeAwards(awardCounts);
     }
 
     startUpdatingTable() {
         this.addActorRow();
-        setInterval(() => this.addActorRow(), 5000);//Modifica el tiempo de agregar actor
+        setInterval(() => this.addActorRow(), 5000);
     }
 }
+
 class Modal {
     constructor() {
         this.modal = this.createModal();
@@ -309,20 +331,20 @@ class ActorSearcher {
         this.searchInput = null;
         this.searchResults = null;
         this.actorDetails = null;
+        this.toggleDetailsButton = null;
+        this.detailsVisible = true;  // Estado para controlar la visibilidad de los detalles
         this.setupSearchUI();
     }
 
     setupSearchUI() {
         // Crear elementos del DOM para la búsqueda y detalles del actor
-        const searchContainer = document.createElement('div');
-        searchContainer.id = 'search-container';
+        const searchContainer = document.getElementById('actor-search-container');
         searchContainer.innerHTML = `
-            <input type="text" id="actor-search" placeholder="Buscar por ID o nombre...">
-            <p id= "parrafo-busqueda"> <strong> Aqui la busqueda por ID o nombre <strong> </p>
+            <input type="text" id="actor-search" placeholder="Buscar por ID o nombre..." class="form-control mb-2">
+            <p id="parrafo-busqueda"><strong>Aquí la búsqueda por ID o nombre</strong></p>
             <div id="search-results"></div>
             <div id="actor-details"></div>
         `;
-        document.body.insertBefore(searchContainer, document.body.firstChild);
 
         this.searchInput = document.getElementById('actor-search');
         this.searchResults = document.getElementById('search-results');
@@ -360,23 +382,50 @@ class ActorSearcher {
         const knownFor = row.cells[1].textContent;
         const awards = row.cells[2].textContent;
 
+        // Volver a hacer visible el contenedor de detalles del actor
+        this.actorDetails.style.display = 'block'; // Asegura que los detalles se muestren
+        this.detailsVisible = true; // Restablece el estado de visibilidad de los detalles
+
+        // Mostrar los detalles del actor
         this.actorDetails.innerHTML = `
+        <div class="result">
             <img src="${image}" alt="${name}">
-            <h2>${name}</h2>
-            <p><strong>ID:</strong> ${id}</p>
-            <p><strong>Conocido por:</strong> ${knownFor}</p>
-            <p><strong>Premios:</strong> ${awards}</p>
+            <div class="texto2">
+                <h2>${name}</h2>
+                <p><strong>ID:</strong> ${id}</p>
+                <p><strong>Conocido por:</strong> ${knownFor}</p>
+                <p><strong>Premios:</strong> ${awards}</p>
+            </div>
+        </div>
+        <div class="bot">
+        <button id="detalles">Ocultar Detalles</button>
+        </div>
         `;
 
-        // Limpiar los resultados de búsqueda y el campo de entrada
+        // Limpiar los resultados de búsqueda
         this.searchResults.innerHTML = '';
         this.searchInput.value = '';
+
+        // Agregar el evento al botón para ocultar/mostrar detalles
+        this.toggleDetailsButton = document.getElementById('detalles');
+        this.toggleDetailsButton.addEventListener('click', () => this.toggleActorDetails());
+    }
+
+    // Método para ocultar o mostrar los detalles del actor
+    toggleActorDetails() {
+        this.detailsVisible = !this.detailsVisible;
+        this.actorDetails.style.display = this.detailsVisible ? 'block' : 'none';
+        this.toggleDetailsButton.textContent = this.detailsVisible ? 'Ocultar Detalles' : 'Mostrar Detalles';
     }
 }
 
-const actorManager = new ActorManager();
-const grafica = new Grafica(); // Instancia de la gráfica
-const randomActor = new RandomActor(actorManager, grafica); // Pasar grafica como argumento
-randomActor.startUpdatingTable();
-const actorSearcher = new ActorSearcher(actorManager, randomActor);
+// Instanciar ActorSearcher en tu script.js
+document.addEventListener('DOMContentLoaded', () => {
+    const actorManager = new ActorManager();
+    const grafica = new Grafica();  // Asumo que ya tienes una clase Grafica
+    const randomActor = new RandomActor(actorManager, grafica);
 
+    randomActor.startUpdatingTable();  // Iniciar actualización de la tabla
+
+    const actorSearcher = new ActorSearcher(actorManager, randomActor);  // Instancia ActorSearcher
+});
